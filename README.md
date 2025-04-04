@@ -5,6 +5,7 @@
 This is a connector to allow Claude Desktop (or any MCP client) to read and search any directory containing Markdown notes (such as an Obsidian vault).
 
 ## Installation
+
 Make sure Claude Desktop and `npm` is installed.
 
 ### Installing via Smithery
