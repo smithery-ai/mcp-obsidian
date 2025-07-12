@@ -10,6 +10,7 @@ import {
 import fs from "fs/promises"
 import path from "path"
 import os from "os"
+import * as fsSync from "fs"
 import { z } from "zod"
 import { zodToJsonSchema } from "zod-to-json-schema"
 
@@ -25,7 +26,7 @@ if (args.length === 0) {
 
 // Normalize all paths consistently
 function normalizePath(p: string): string {
-  return path.normalize(p).toLowerCase()
+  return path.normalize(p)
 }
 
 function expandHome(filepath: string): string {
@@ -36,7 +37,13 @@ function expandHome(filepath: string): string {
 }
 
 // Store allowed directories in normalized form
-const vaultDirectories = [normalizePath(path.resolve(expandHome(args[0])))]
+const initialDir   = normalizePath(path.resolve(expandHome(args[0])));
+const canonicalDir = normalizePath(fsSync.realpathSync(initialDir));
+
+const vaultDirectories =
+  initialDir === canonicalDir
+    ? [initialDir]                 // no symlink → single entry
+    : [initialDir, canonicalDir];
 
 // Validate that all directories exist and are accessible
 await Promise.all(
