@@ -5,7 +5,6 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
-  ToolSchema,
 } from "@modelcontextprotocol/sdk/types.js"
 import fs from "fs/promises"
 import path from "path"
@@ -131,8 +130,8 @@ const SearchNotesArgsSchema = z.object({
   query: z.string(),
 })
 
-const ToolInputSchema = ToolSchema.shape.inputSchema
-type ToolInput = z.infer<typeof ToolInputSchema>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ToolInput = any
 
 // Server setup
 const server = new Server(
@@ -204,6 +203,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           "path as a reference. Failed reads for individual notes won't stop " +
           "the entire operation. Reading too many at once may result in an error.",
         inputSchema: zodToJsonSchema(ReadNotesArgsSchema) as ToolInput,
+        annotations: {
+          title: "Read Notes",
+          readOnlyHint: true,
+        },
       },
       {
         name: "search_notes",
@@ -213,6 +216,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           "Queries can also be a valid regex. Returns paths of the notes " +
           "that match the query.",
         inputSchema: zodToJsonSchema(SearchNotesArgsSchema) as ToolInput,
+        annotations: {
+          title: "Search Notes",
+          readOnlyHint: true,
+        },
       },
     ],
   }
